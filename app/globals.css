@@ -1,52 +1,41 @@
-@import "tailwindcss";
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #FAF6EF;
-  --foreground: #2A2622;
-  --primary: #16302B;
-  --primary-light: #1D3B34;
-  --accent: #C9A468;
-  --accent-light: #D4B87A;
-  --border: #DDD5C4;
-  --muted: #8A8377;
-  --muted-light: #F7F1E4;
-}
+@layer base {
+  :root {
+    --background: #FAF6EF;
+    --foreground: #2A2622;
+    --primary: #16302B;
+    --primary-light: #1D3B34;
+    --accent: #C9A468;
+    --accent-light: #D4B87A;
+    --border: #DDD5C4;
+    --muted: #8A8377;
+    --muted-light: #F7F1E4;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-light: var(--primary-light);
-  --color-accent: var(--accent);
-  --color-accent-light: var(--accent-light);
-  --color-border: var(--border);
-  --color-muted: var(--muted);
-  --color-muted-light: var(--muted-light);
+  * {
+    border-color: var(--border);
+  }
   
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Inter', sans-serif;
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+  }
 }
 
-* {
-  border-color: var(--border);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Inter', sans-serif;
-}
-
-.font-display {
-  font-family: 'Playfair Display', serif;
-}
-
-.font-body {
-  font-family: 'Inter', sans-serif;
-}
-
-/* Custom Utilities */
 @layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -55,12 +44,18 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
-  .text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-[#16302B] text-[#F7F1E4] rounded-lg hover:bg-[#1D3B34] transition-colors;
   }
   
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-[#F7F1E4] text-[#5B564B] border border-[#DDD5C4] rounded-lg hover:bg-[#DDD5C4] transition-colors;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-[#DDD5C4] rounded-lg bg-[#FAF6EF] text-[#2A2622] outline-none transition-colors focus:border-[#C9A468] focus:ring-1 focus:ring-[#C9A468] placeholder:text-[#8A8377];
   }
 }
