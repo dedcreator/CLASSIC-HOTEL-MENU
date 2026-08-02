@@ -26,6 +26,7 @@ import {
   BeakerIcon,
   CubeIcon,
   QrCodeIcon,
+  LockClosedIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
@@ -136,7 +137,7 @@ export default function MenuPage() {
   // Fetch orders with polling - every 4 seconds
   const { data: serverOrders, refetch: refetchOrders } = useOrders(
     tableInfo?.id ? { table: tableInfo.id } : undefined,
-    { refetchInterval: 4000 } // Poll every 4 seconds
+    { refetchInterval: 4000 }
   );
 
   // Find table by slug
@@ -201,7 +202,8 @@ export default function MenuPage() {
 
   // Handle server orders - detect new orders and status changes
   useEffect(() => {
-    if (!serverOrders || !tableInfo) return;
+    // Check if serverOrders is an array before processing
+    if (!serverOrders || !Array.isArray(serverOrders) || !tableInfo) return;
 
     const serverOrderMap = new Map();
     serverOrders.forEach((order: any) => {
@@ -394,7 +396,14 @@ export default function MenuPage() {
       setShowOrderSuccess(true);
       setCart([]);
       
-      toast.warning(`Order ${newOrderNumber} placed locally.`);
+      toast(`Order ${newOrderNumber} placed locally.`, {
+        icon: '⚠️',
+        style: {
+          background: '#FFF3E0',
+          color: '#E65100',
+        }
+      });
+      
       setIsPlacingOrder(false);
     }
   };
@@ -618,7 +627,7 @@ export default function MenuPage() {
           )}
         </div>
       ) : (
-        // Menu View - Same as before
+        // Menu View
         <div>
           {/* Search & Categories */}
           <div className="sticky top-[73px] z-40 bg-[#FAF6EF] py-4 px-4 shadow-sm">
@@ -787,7 +796,6 @@ export default function MenuPage() {
               transition={{ type: 'spring', damping: 30 }}
               className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col"
             >
-              {/* Cart content - same as before */}
               <div className="p-4 border-b border-[#DDD5C4] flex justify-between items-center bg-gradient-to-r from-[#16302B] to-[#1D3B34] text-[#F7F1E4]">
                 <div>
                   <h2 className="font-display text-lg font-medium">Your Order</h2>
@@ -961,73 +969,74 @@ export default function MenuPage() {
       {/* Payment Modal */}
       <AnimatePresence>
         {showPaymentModal && selectedOrderForPayment && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#2A2622]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden"
-            >
-              <div className="p-6">
-                <h2 className="font-display text-2xl font-medium text-[#2A2622] text-center">Pay for Order</h2>
-                <p className="font-body text-[#8A8377] text-center">{selectedOrderForPayment.orderNumber}</p>
-                
-                <div className="mt-6 space-y-4">
-                  <div className="bg-[#F7F1E4] rounded-xl p-4">
-                    <div className="space-y-2">
-                      {selectedOrderForPayment.items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-sm">
-                          <span className="font-body text-[#5B564B]">{item.name} x{item.quantity}</span>
-                          <span className="font-body font-medium text-[#16302B]">
-                            ₦{(item.price * item.quantity).toLocaleString()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-[#DDD5C4] flex justify-between">
-                      <span className="font-body font-medium text-[#2A2622]">Total</span>
-                      <span className="font-display text-xl font-medium text-[#16302B]">
-                        ₦{selectedOrderForPayment.total.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
+          <div className="fixed inset-0 bg-[#2A2622]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-md w-full shadow-xl">
+              <div className="p-4 border-b border-[#DDD5C4] flex justify-between items-center bg-[#16302B] text-[#F7F1E4] rounded-t-xl">
+                <div>
+                  <h2 className="font-display text-lg font-medium">Pay for Order</h2>
+                  <p className="font-body text-sm text-[#B9C4B9]">{selectedOrderForPayment.orderNumber}</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setSelectedOrderForPayment(null);
+                  }} 
+                  className="p-1 hover:bg-[#1D3B34] rounded-lg transition-colors"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
 
-                  <div className="bg-[#DBEAFE] rounded-lg p-3 border border-[#93C5FD]">
-                    <div className="flex items-center gap-2">
-                      <CreditCardIcon className="h-5 w-5 text-[#1E40AF]" />
-                      <p className="font-body text-sm text-[#1E40AF]">
-                        Payment will be processed securely via Korapay
-                      </p>
-                    </div>
-                  </div>
+              <div className="p-6 space-y-5">
+                <div className="bg-[#F7F1E4] rounded-lg p-4 border border-[#DDD5C4]">
+                  <p className="font-body text-sm text-[#8A8377] mb-1">Total Amount</p>
+                  <p className="font-display text-3xl font-medium text-[#16302B]">
+                    ₦{selectedOrderForPayment.total.toLocaleString()}
+                  </p>
+                </div>
 
-                  <div className="flex gap-3 mt-6">
-                    <button
-                      onClick={() => {
-                        setShowPaymentModal(false);
-                        setSelectedOrderForPayment(null);
-                      }}
-                      className="flex-1 font-body py-3 text-sm font-medium text-[#5B564B] bg-[#F7F1E4] border border-[#DDD5C4] rounded-xl hover:bg-[#DDD5C4] transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handlePaymentComplete}
-                      className="flex-1 font-body py-3 text-sm font-medium text-[#F7F1E4] bg-gradient-to-r from-[#16302B] to-[#1D3B34] rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                    >
-                      <CreditCardIcon className="h-5 w-5" />
-                      Pay Now
-                    </button>
+                <div className="bg-[#DBEAFE] rounded-lg p-4 border border-[#93C5FD]">
+                  <div className="flex items-center gap-3">
+                    <LockClosedIcon className="h-5 w-5 text-[#1E40AF]" />
+                    <div>
+                      <p className="font-body text-sm font-medium text-[#1E40AF]">Secure Payment</p>
+                      <p className="font-body text-xs text-[#1E40AF]">Secured by Korapay</p>
+                    </div>
                   </div>
                 </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPaymentModal(false);
+                      setSelectedOrderForPayment(null);
+                    }}
+                    className="flex-1 font-body px-4 py-2.5 text-sm font-medium text-[#16302B] bg-[#F7F1E4] border border-[#DDD5C4] rounded-lg hover:bg-[#DDD5C4] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePaymentComplete}
+                    disabled={isPlacingOrder}
+                    className="flex-1 font-body px-4 py-2.5 text-sm font-medium text-[#F7F1E4] bg-[#16302B] rounded-lg hover:bg-[#1D3B34] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isPlacingOrder ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-[#F7F1E4] border-t-transparent rounded-full animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCardIcon className="h-5 w-5" />
+                        Pay Now
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
