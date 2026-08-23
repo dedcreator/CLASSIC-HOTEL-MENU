@@ -37,6 +37,7 @@ import {
   useCreateOrder,
   useOrders,
 } from '../../lib/api/hooks/useMenu';
+import PaymentModal from '../components/PaymentModal';
 
 interface MenuItem {
   id: string;
@@ -967,78 +968,19 @@ export default function MenuPage() {
       </AnimatePresence>
 
       {/* Payment Modal */}
-      <AnimatePresence>
-        {showPaymentModal && selectedOrderForPayment && (
-          <div className="fixed inset-0 bg-[#2A2622]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full shadow-xl">
-              <div className="p-4 border-b border-[#DDD5C4] flex justify-between items-center bg-[#16302B] text-[#F7F1E4] rounded-t-xl">
-                <div>
-                  <h2 className="font-display text-lg font-medium">Pay for Order</h2>
-                  <p className="font-body text-sm text-[#B9C4B9]">{selectedOrderForPayment.orderNumber}</p>
-                </div>
-                <button 
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setSelectedOrderForPayment(null);
-                  }} 
-                  className="p-1 hover:bg-[#1D3B34] rounded-lg transition-colors"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </div>
+      {showPaymentModal && selectedOrderForPayment && (
+        <PaymentModal
+          orderId={selectedOrderForPayment.id}
+          total={selectedOrderForPayment.total}
+          orderNumber={selectedOrderForPayment.orderNumber}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedOrderForPayment(null);
+          }}
+          onComplete={handlePaymentComplete}
+        />
+      )}
 
-              <div className="p-6 space-y-5">
-                <div className="bg-[#F7F1E4] rounded-lg p-4 border border-[#DDD5C4]">
-                  <p className="font-body text-sm text-[#8A8377] mb-1">Total Amount</p>
-                  <p className="font-display text-3xl font-medium text-[#16302B]">
-                    ₦{selectedOrderForPayment.total.toLocaleString()}
-                  </p>
-                </div>
-
-                <div className="bg-[#DBEAFE] rounded-lg p-4 border border-[#93C5FD]">
-                  <div className="flex items-center gap-3">
-                    <LockClosedIcon className="h-5 w-5 text-[#1E40AF]" />
-                    <div>
-                      <p className="font-body text-sm font-medium text-[#1E40AF]">Secure Payment</p>
-                      <p className="font-body text-xs text-[#1E40AF]">Secured by Korapay</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowPaymentModal(false);
-                      setSelectedOrderForPayment(null);
-                    }}
-                    className="flex-1 font-body px-4 py-2.5 text-sm font-medium text-[#16302B] bg-[#F7F1E4] border border-[#DDD5C4] rounded-lg hover:bg-[#DDD5C4] transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handlePaymentComplete}
-                    disabled={isPlacingOrder}
-                    className="flex-1 font-body px-4 py-2.5 text-sm font-medium text-[#F7F1E4] bg-[#16302B] rounded-lg hover:bg-[#1D3B34] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isPlacingOrder ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-[#F7F1E4] border-t-transparent rounded-full animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCardIcon className="h-5 w-5" />
-                        Pay Now
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Floating Order Button - Mobile */}
       {cartCount > 0 && activeTab === 'menu' && (
